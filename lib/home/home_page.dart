@@ -37,11 +37,11 @@ class _HomePageState extends State<HomePage> {
                     Container(
                         padding: const EdgeInsets.all(20),
                         alignment: Alignment.centerLeft,
-                        child: Text(input, style: TextStyle(fontSize: 20))),
+                        child: Text(input, style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold))),
                     Container(
                         padding: const EdgeInsets.all(20),
                         alignment: Alignment.centerRight,
-                        child: Text(output, style: TextStyle(fontSize: 20))),
+                        child: Text(output, style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold))),
                   ],
                 ),
               )),
@@ -61,6 +61,7 @@ class _HomePageState extends State<HomePage> {
                           buttonTapped: () {
                             setState(() {
                               input = '';
+                              output = '';
                             });
                           },
                           buttonText: buttons[index],
@@ -85,6 +86,7 @@ class _HomePageState extends State<HomePage> {
                           buttonTapped: () {
                             setState(() {
                               calculate();
+                              input = '';
                             });
                           },
                           buttonText: buttons[index],
@@ -96,7 +98,24 @@ class _HomePageState extends State<HomePage> {
                         return MyButton(
                           buttonTapped: () {
                             setState(() {
-                              input += output;
+                              input = output;
+                              output = '';
+                            });
+                          },
+                          buttonText: buttons[index],
+                          color: isOperator(buttons[index]) ? Colors.deepPurple :  Colors.deepPurple[50],
+                          textColor: isOperator(buttons[index]) ? Colors.white : Colors.deepPurple,
+                        );
+                        // Operator buttons
+                      } else if (isOperator(buttons[index])) {
+                        return MyButton(
+                          buttonTapped: () {
+                            setState(() {
+                              if (input.endsWith('+') || input.endsWith('-') || input.endsWith('x') || input.endsWith('/')) {
+                                return null;
+                              } else {
+                                input += buttons[index];
+                              }
                             });
                           },
                           buttonText: buttons[index],
@@ -104,10 +123,14 @@ class _HomePageState extends State<HomePage> {
                           textColor: isOperator(buttons[index]) ? Colors.white : Colors.deepPurple,
                         );
                         // Rest of the buttons
-                      } else  {
+                      }
+                      else  {
                         return MyButton(
                           buttonTapped: () {
                             setState(() {
+                              if (output.isNotEmpty) {
+                                output = '';
+                              }
                               input += buttons[index];
                             });
                           },
@@ -134,14 +157,17 @@ class _HomePageState extends State<HomePage> {
     String finalInput = input;
     finalInput = finalInput.replaceAll('x', '*');
 
-    Parser p = Parser();
-    Expression exp = p.parse(finalInput);
-    ContextModel cm = ContextModel();
-    double eval = exp.evaluate(EvaluationType.REAL, cm);
+    try {
+      Parser p = Parser();
+      Expression exp = p.parse(finalInput);
+      ContextModel cm = ContextModel();
+      double eval = exp.evaluate(EvaluationType.REAL, cm);
 
-    output = eval.toString();
-    finalInput = '';
-    input = '';
+      output = eval.toString();
+      finalInput = '';
+    } catch (e) {
+      print('Error');
+    }
   }
 }
 
